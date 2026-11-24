@@ -1,0 +1,35 @@
+services:
+  - type: worker
+    name: seal-playerok-bot
+    runtime: python
+    plan: starter
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python render_start.py
+    autoDeploy: true
+    disk:
+      name: seal-playerok-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: SEAL_DATA_DIR
+        value: /var/data
+      - key: SEAL_ACTIVATION_CODE
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_PASSWORD
+        sync: false
+      - key: PLAYEROK_API_TOKEN
+        sync: false
+      - key: PLAYEROK_COOKIES
+        sync: false
+      - key: PLAYEROK_USER_AGENT
+        sync: false
+      - key: PLAYEROK_PROXY
+        sync: false
+      - key: TELEGRAM_API_MODE
+        value: direct
+      - key: TELEGRAM_PROXY
+        sync: false
+      - key: TELEGRAM_CUSTOM_API_URL
+        sync: false

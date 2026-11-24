@@ -1,42 +1,31 @@
 """
-Центральный модуль для всех путей в проекте.
-Все пути вычисляются относительно расположения этого файла,
-что гарантирует правильную работу независимо от текущей рабочей директории.
+Центральный модуль путей Seal Playerok Bot.
+
+Код и ресурсы остаются в каталоге репозитория.
+Изменяемые данные на Render хранятся на Persistent Disk:
+SEAL_DATA_DIR=/var/data
 """
 import os
 
-# Корневая директория проекта (где лежит этот файл)
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.environ.get("SEAL_DATA_DIR", ROOT_DIR))
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# ДИРЕКТОРИИ
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Директория настроек бота
-BOT_SETTINGS_DIR = os.path.join(ROOT_DIR, "bot_settings")
-
-# Директория данных бота
-BOT_DATA_DIR = os.path.join(ROOT_DIR, "bot_data")
+# Изменяемые данные — на постоянном диске Render.
+BOT_SETTINGS_DIR = os.path.join(DATA_DIR, "bot_settings")
+BOT_DATA_DIR = os.path.join(DATA_DIR, "bot_data")
 ERROR_STATS_DIR = os.path.join(BOT_DATA_DIR, "error_stats")
+LOGS_DIR = os.path.join(DATA_DIR, "logs")
+STORAGE_DIR = os.path.join(DATA_DIR, "storage")
+CACHE_DIR = os.path.join(STORAGE_DIR, "cache")
+
+# Ресурсы и плагины — в репозитории (только чтение на Render).
 BOT_IMAGES_DIR = os.path.join(ROOT_DIR, "bot_images")
 START_IMAGES_DIR = os.path.join(BOT_IMAGES_DIR, "start_images")
 START_BANNER_IMAGE_FILE = os.path.join(START_IMAGES_DIR, "хелуин тюлень.png")
 RANDOM_CUTE_IMAGES_DIR = os.path.join(BOT_IMAGES_DIR, "random_cute_images")
-
-# Директория логов
-LOGS_DIR = os.path.join(ROOT_DIR, "logs")
-
-# Директория плагинов
 PLUGINS_DIR = os.path.join(ROOT_DIR, "plugins")
 
-# Директория хранилища (кэш и т.д.)
-STORAGE_DIR = os.path.join(ROOT_DIR, "storage")
-CACHE_DIR = os.path.join(STORAGE_DIR, "cache")
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# ФАЙЛЫ НАСТРОЕК (bot_settings/)
-# ═══════════════════════════════════════════════════════════════════════════════
-
+# Настройки.
 CONFIG_FILE = os.path.join(BOT_SETTINGS_DIR, "config.json")
 MESSAGES_FILE = os.path.join(BOT_SETTINGS_DIR, "messages.json")
 CUSTOM_COMMANDS_FILE = os.path.join(BOT_SETTINGS_DIR, "custom_commands.json")
@@ -47,10 +36,7 @@ AUTO_COMPLETE_ITEMS_FILE = os.path.join(BOT_SETTINGS_DIR, "auto_complete_items.j
 QUICK_REPLIES_FILE = os.path.join(BOT_SETTINGS_DIR, "quick_replies.json")
 PROXY_LIST_FILE = os.path.join(BOT_SETTINGS_DIR, "proxy_list.json")
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# ФАЙЛЫ ДАННЫХ (bot_data/)
-# ═══════════════════════════════════════════════════════════════════════════════
-
+# Данные.
 SALT_FILE = os.path.join(BOT_DATA_DIR, ".salt")
 STATS_FILE = os.path.join(BOT_DATA_DIR, "stats.json")
 DEALS_MONITOR_FILE = os.path.join(BOT_DATA_DIR, "deals_to_monitor.json")
@@ -60,44 +46,23 @@ AUTO_REMINDER_DEALS_FILE = os.path.join(BOT_DATA_DIR, "auto_reminder_deals.json"
 PLAYEROK_CONNECTION_HEALTH_FILE = os.path.join(BOT_DATA_DIR, "playerok_connection_health.json")
 AUTO_DELIVERY_HISTORY_FILE = os.path.join(BOT_DATA_DIR, "auto_delivery_history.json")
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# ФАЙЛЫ ЛОГОВ (logs/)
-# ═══════════════════════════════════════════════════════════════════════════════
-
 LATEST_LOG_FILE = os.path.join(LOGS_DIR, "latest.log")
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# ФАЙЛЫ КЭША (storage/cache/)
-# ═══════════════════════════════════════════════════════════════════════════════
-
 ANNOUNCEMENT_TAG_FILE = os.path.join(CACHE_DIR, "announcement_tag.txt")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# ═══════════════════════════════════════════════════════════════════════════════
-
 def ensure_dirs():
-    """Создаёт все необходимые директории, если они не существуют."""
-    dirs = [
+    """Создаёт каталоги данных; не пытается создавать каталоги ресурсов в репозитории."""
+    for directory in (
         BOT_SETTINGS_DIR,
         BOT_DATA_DIR,
         ERROR_STATS_DIR,
-        START_IMAGES_DIR,
         LOGS_DIR,
-        PLUGINS_DIR,
         STORAGE_DIR,
         CACHE_DIR,
-    ]
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
+    ):
+        os.makedirs(directory, exist_ok=True)
 
 
 def get_path(*parts) -> str:
-    """
-    Возвращает абсолютный путь относительно корня проекта.
-
-    :param parts: Части пути
-    :return: Абсолютный путь
-    """
+    """Возвращает путь к файлу относительно корня репозитория."""
     return os.path.join(ROOT_DIR, *parts)
